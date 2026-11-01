@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Happy Birthday Surprise ❤️</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Quicksand:wght@400;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
+    }
+    .serif-title {
+      font-family: 'Playfair Display', serif;
+    }
+    .handwriting {
+      font-family: 'Caveat', cursive;
+    }
+    .script-font {
+      font-family: 'Dancing Script', cursive;
+    }
+
+    /* Soft ambient background */
+    .bg-romantic {
+      background: radial-gradient(circle at top, #ffeef4 0%, #ffd6e5 50%, #fbcfe8 100%);
+    }
+
+    /* Floating hearts background animation */
+    @keyframes floatHeart {
+      0% { transform: translateY(100vh) scale(0.6); opacity: 0; }
+      20% { opacity: 0.6; }
+      80% { opacity: 0.6; }
+      100% { transform: translateY(-10vh) scale(1.1); opacity: 0; }
+    }
+    .floating-heart {
+      position: absolute;
+      color: rgba(244, 114, 182, 0.45);
+      animation: floatHeart 12s linear infinite;
+      pointer-events: none;
+    }
+
+    /* QR Scan laser line */
+    @keyframes scanMove {
+      0%, 100% { top: 12%; opacity: 0.4; }
+      50% { top: 82%; opacity: 1; }
+    }
+    .scan-line {
+      animation: scanMove 2.4s ease-in-out infinite;
+    }
+
+    /* Flame flicker */
+    @keyframes flicker {
+      0%, 100% { transform: scale(1) rotate(-1deg); }
+      50% { transform: scale(1.15, 0.9) rotate(2deg); filter: drop-shadow(0 0 10px #f59e0b); }
+    }
+    .flame-anim {
+      animation: flicker 0.25s infinite alternate ease-in-out;
+      transform-origin: bottom center;
+    }
+
+    /* Balloon wobble */
+    @keyframes balloonFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(2deg); }
+    }
+    .balloon-float {
+      animation: balloonFloat 3s ease-in-out infinite;
+    }
+
+    /* Envelope 3D flap */
+    .envelope-wrapper {
+      perspective: 800px;
+    }
+    .envelope-flap {
+      transform-origin: top center;
+      transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .envelope-open .envelope-flap {
+      transform: rotateX(180deg);
+      z-index: 0;
+    }
+    .letter-paper {
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.3s, opacity 0.5s ease;
+    }
+    .envelope-open .letter-paper {
+      transform: translateY(-90px);
+    }
+
+    /* Pop badge animation */
+    @keyframes popIn {
+      0% { transform: scale(0.3); opacity: 0; }
+      70% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .pop-anim {
+      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    /* Shaking gift */
+    @keyframes shakeGift {
+      0%, 100% { transform: rotate(0deg); }
+      20% { transform: rotate(-8deg); }
+      40% { transform: rotate(8deg); }
+      60% { transform: rotate(-6deg); }
+      80% { transform: rotate(6deg); }
+    }
+    .shake-anim {
+      animation: shakeGift 0.6s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="bg-romantic min-h-screen text-gray-800 flex items-center justify-center p-2 sm:p-4 select-none relative overflow-hidden">
+
+  <!-- Background Floating Hearts Canvas / Layer -->
+  <div id="heartsContainer" class="fixed inset-0 pointer-events-none overflow-hidden z-0"></div>
+
+  <!-- Sound & Fullscreen Controls Bar -->
+  <header class="fixed top-3 right-3 sm:top-5 sm:right-6 flex items-center gap-2 z-50">
+    <button id="soundToggleBtn" class="bg-white/80 backdrop-blur-md shadow-md text-pink-600 hover:text-pink-700 w-11 h-11 rounded-full flex items-center justify-center transition active:scale-90 border border-pink-100" title="Play / Mute Music">
+      <!-- Muted by default until user tap -->
+      <svg id="soundOffIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/></svg>
+      <svg id="soundOnIcon" class="w-5 h-5 hidden text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M11.99 4L7 9H4v6h3l5 5V4z"/></svg>
+    </button>
+  </header>
+
+  <!-- Mobile phone wrapper -->
+  <main class="w-full max-w-sm sm:max-w-md h-[92vh] max-h-[820px] bg-white/70 backdrop-blur-lg border border-pink-200/80 rounded-[2.5rem] shadow-2xl relative overflow-hidden flex flex-col z-10 transition-colors duration-700">
+
+    <!-- Screen 1: Scan / Tap Cover Screen -->
+    <section id="step1" class="step-screen active-step w-full h-full flex flex-col items-center justify-center p-6 text-center">
+      <div class="mb-4">
+        <h2 id="recipientTitle1" class="serif-title text-2xl font-bold text-pink-800 tracking-wide">Rajosri</h2>
+      </div>
+
+      <!-- Heart QR Card -->
+      <div id="qrCard" class="relative cursor-pointer group transition-transform active:scale-95 duration-300">
+        <!-- Heart background wrapper -->
+        <div class="w-64 h-64 sm:w-72 sm:h-72 bg-gradient-to-br from-pink-500 via-rose-500 to-red-500 rounded-3xl p-6 shadow-xl relative flex items-center justify-center overflow-hidden border-4 border-white/60">
+          
+          <!-- Big Heart shape SVG in background -->
+          <svg class="absolute inset-0 w-full h-full text-red-600/30 scale-125" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+
+          <!-- QR Code Mock Graphic -->
+          <div class="w-44 h-44 bg-white/95 rounded-2xl p-3 shadow-inner flex flex-col justify-between relative z-10">
+            <!-- Simulated QR Pattern with small hearts -->
+            <div class="grid grid-cols-6 gap-1 w-full h-full">
+              <!-- Corner Finder 1 -->
+              <div class="col-span-2 row-span-2 border-4 border-pink-600 rounded-lg p-1 flex items-center justify-center">
+                <div class="w-full h-full bg-pink-600 rounded-sm"></div>
+              </div>
+              <div class="bg-pink-400 rounded-sm"></div>
+              <div class="bg-pink-700 rounded-sm"></div>
+              <!-- Corner Finder 2 -->
+              <div class="col-span-2 row-span-2 border-4 border-pink-600 rounded-lg p-1 flex items-center justify-center">
+                <div class="w-full h-full bg-pink-600 rounded-sm"></div>
+              </div>
+              <div class="bg-pink-300 rounded-sm"></div>
+              <div class="bg-pink-600 rounded-sm"></div>
+              <!-- Middle details -->
+              <div class="bg-pink-500 rounded-sm"></div>
+              <div class="bg-pink-400 rounded-sm"></div>
+              <!-- Heart center in QR -->
+              <div class="col-span-2 row-span-2 flex items-center justify-center">
+                <span class="text-2xl animate-pulse">💖</span>
+              </div>
+              <div class="bg-pink-600 rounded-sm"></div>
+              <div class="bg-pink-300 rounded-sm"></div>
+              <div class="bg-pink-400 rounded-sm"></div>
+              <div class="bg-pink-700 rounded-sm"></div>
+              <!-- Corner Finder 3 -->
+              <div class="col-span-2 row-span-2 border-4 border-pink-600 rounded-lg p-1 flex items-center justify-center">
+                <div class="w-full h-full bg-pink-600 rounded-sm"></div>
+              </div>
+              <div class="bg-pink-300 rounded-sm"></div>
+              <div class="bg-pink-500 rounded-sm"></div>
+              <div class="col-span-2 row-span-2 flex items-center justify-center gap-1">
+                <div class="w-3 h-3 bg-pink-600 rounded-full"></div>
+                <div class="w-3 h-3 bg-pink-400 rounded-sm"></div>
+              </div>
+            </div>
+
+            <!-- Glowing Scan Laser line -->
+            <div class="scan-line absolute left-0 right-0 h-1 bg-white shadow-[0_0_12px_#ffffff] z-20 pointer-events-none"></div>
+          </div>
+
+          <!-- Bottom glow -->
+          <div class="absolute bottom-2 text-white/90 text-xs font-semibold tracking-wider uppercase">Surprise Encrypted</div>
+        </div>
+      </div>
+
+      <div class="mt-8 flex flex-col items-center">
+        <p id="scanLabel" class="text-pink-600 font-medium text-base tracking-wide animate-pulse">Tap to open</p>
+        <div id="openingSpinner" class="hidden flex items-center gap-2 text-pink-600 font-semibold mt-2">
+          <svg class="animate-spin h-5 w-5 text-pink-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+          <span>Opening...</span>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Screen 2: Cute Bear & Panda + "Are you excited?" -->
+    <section id="step2" class="step-screen hidden w-full h-full flex flex-col items-center justify-between p-6 text-center">
+      <div class="pt-2">
+        <h1 class="serif-title text-2xl sm:text-3xl font-bold text-pink-800 leading-tight">
+          Happy Birthday, <br/><span class="text-pink-600 recipient-name">Rajosri</span>! 🎂
+        </h1>
+      </div>
+
+      <!-- Cute Bear & Panda SVG Illustration -->
+      <div class="w-full flex justify-center items-center py-2 relative">
+        <div class="relative w-64 h-56 flex items-center justify-center">
+          <svg viewBox="0 0 320 280" class="w-full h-full drop-shadow-md">
+            <!-- Party Banner -->
+            <path d="M 30,30 Q 160,70 290,30" fill="transparent" stroke="#f472b6" stroke-width="2" stroke-dasharray="4,4"/>
+            <polygon points="50,38 70,39 60,65" fill="#f87171"/>
+            <polygon points="90,44 110,47 100,75" fill="#fbbf24"/>
+            <polygon points="130,49 150,51 140,80" fill="#34d399"/>
+            <polygon points="170,51 190,49 180,80" fill="#60a5fa"/>
+            <polygon points="210,47 230,44 220,75" fill="#a78bfa"/>
+            <polygon points="250,39 270,38 260,65" fill="#f472b6"/>
+
+            <!-- Brown Bear (Left) -->
+            <g transform="translate(45, 75)">
+              <!-- Ears -->
+              <circle cx="45" cy="50" r="16" fill="#b07d62"/>
+              <circle cx="45" cy="50" r="9" fill="#8d5b4c"/>
+              <circle cx="115" cy="50" r="16" fill="#b07d62"/>
+              <circle cx="115" cy="50" r="9" fill="#8d5b4c"/>
+              <!-- Head -->
+              <ellipse cx="80" cy="80" rx="42" ry="38" fill="#c49a82"/>
+              <!-- Party Hat -->
+              <polygon points="80,18 64,55 96,55" fill="#fbbf24"/>
+              <circle cx="80" cy="18" r="5" fill="#ef4444"/>
+              <!-- Cheeks -->
+              <ellipse cx="55" cy="92" rx="7" ry="4" fill="#fca5a5" opacity="0.7"/>
+              <ellipse cx="105" cy="92" rx="7" ry="4" fill="#fca5a5" opacity="0.7"/>
+              <!-- Snout -->
+              <ellipse cx="80" cy="92" rx="15" ry="11" fill="#fff7ed"/>
+              <ellipse cx="80" cy="88" rx="6" ry="4" fill="#451a03"/>
+              <!-- Mouth -->
+              <path d="M 77,93 Q 80,97 83,93" stroke="#451a03" stroke-width="2" fill="none"/>
+              <!-- Eyes (closed happy) -->
+              <path d="M 60,78 Q 67,73 74,78" stroke="#451a03" stroke-width="3" stroke-linecap="round" fill="none"/>
+              <path d="M 86,78 Q 93,73 100,78" stroke="#451a03" stroke-width="3" stroke-linecap="round" fill="none"/>
+            </g>
+
+            <!-- Panda (Right) -->
+            <g transform="translate(145, 75)">
+              <!-- Ears -->
+              <circle cx="45" cy="50" r="16" fill="#1f2937"/>
+              <circle cx="115" cy="50" r="16" fill="#1f2937"/>
+              <!-- Head -->
+              <ellipse cx="80" cy="80" rx="42" ry="38" fill="#ffffff" stroke="#e5e7eb" stroke-width="2"/>
+              <!-- Party Hat -->
+              <polygon points="80,18 64,55 96,55" fill="#60a5fa"/>
+              <circle cx="80" cy="18" r="5" fill="#f43f5e"/>
+              <!-- Eye Patches -->
+              <ellipse cx="62" cy="78" rx="12" ry="10" fill="#1f2937" transform="rotate(-15 62 78)"/>
+              <ellipse cx="98" cy="78" rx="12" ry="10" fill="#1f2937" transform="rotate(15 98 78)"/>
+              <!-- Eyes -->
+              <circle cx="63" cy="77" r="4" fill="#ffffff"/>
+              <circle cx="64" cy="76" r="1.5" fill="#1f2937"/>
+              <circle cx="97" cy="77" r="4" fill="#ffffff"/>
+              <circle cx="96" cy="76" r="1.5" fill="#1f2937"/>
+              <!-- Cheeks -->
+              <ellipse cx="52" cy="94" rx="7" ry="4" fill="#fda4af" opacity="0.8"/>
+              <ellipse cx="108" cy="94" rx="7" ry="4" fill="#fda4af" opacity="0.8"/>
+              <!-- Nose & Smile -->
+              <ellipse cx="80" cy="87" rx="5" ry="3.5" fill="#1f2937"/>
+              <path d="M 76,92 Q 80,96 84,92" stroke="#1f2937" stroke-width="2" fill="none"/>
+            </g>
+
+            <!-- Birthday Cake in front -->
+            <g transform="translate(110, 160)">
+              <!-- Cake Base -->
+              <rect x="10" y="40" width="80" height="35" rx="8" fill="#fda4af"/>
+              <!-- Cream drizzle -->
+              <path d="M 10,40 Q 20,52 30,40 Q 40,52 50,40 Q 60,52 70,40 Q 80,52 90,40 L 90,32 Q 50,28 10,32 Z" fill="#ffffff"/>
+              <!-- Candle -->
+              <rect x="47" y="15" width="6" height="20" rx="3" fill="#38bdf8"/>
+              <!-- Flame -->
+              <path d="M 50,3 Q 56,10 50,15 Q 44,10 50,3 Z" fill="#f59e0b"/>
+              <circle cx="50" cy="9" r="2.5" fill="#ef4444"/>
+              <text x="50" y="62" font-size="9" font-family="'Quicksand', sans-serif" font-weight="bold" fill="#be185d" text-anchor="middle">HAPPY BDAY</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Playful Interaction Prompt -->
+      <div class="w-full flex flex-col items-center pb-4 relative min-h-[140px] justify-end">
+        <p class="text-pink-900 font-semibold mb-3 text-base">Are you excited for what's next? ✨</p>
+        
+        <div id="excitementBtnContainer" class="flex items-center justify-center gap-4 w-full relative h-14">
+          <button id="yesExcitedBtn" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold py-2.5 px-8 rounded-full shadow-lg shadow-pink-400/40 hover:scale-105 active:scale-95 transition-all text-base z-20">
+            Yes 🥰
+          </button>
+          
+          <button id="noExcitedBtn" class="bg-white/80 border border-pink-300 text-pink-700 font-semibold py-2.5 px-7 rounded-full shadow transition-all duration-200 z-10 select-none">
+            No 😜
+          </button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Screen 3: Pop All 4 Balloons Game -->
+    <section id="step3" class="step-screen hidden w-full h-full flex flex-col items-center justify-between p-6 text-center">
+      <div class="pt-2 flex justify-between items-center w-full">
+        <h2 class="serif-title text-2xl font-bold text-pink-800">Pop all 4 balloons 🎈</h2>
+        <span id="balloonCounter" class="text-sm font-bold bg-pink-100 text-pink-600 px-3 py-1 rounded-full border border-pink-200">
+          0/4 POPPED
+        </span>
+      </div>
+
+      <!-- Balloons 2x2 Grid -->
+      <div class="grid grid-cols-2 gap-4 sm:gap-6 w-full max-w-xs my-auto">
+        <!-- Balloon 1: Blue -->
+        <div class="balloon-item relative flex flex-col items-center justify-center h-36 cursor-pointer" data-word="You">
+          <div class="balloon-visual balloon-float flex flex-col items-center transition-transform hover:scale-105 active:scale-90">
+            <svg class="w-24 h-28 drop-shadow-md" viewBox="0 0 100 120">
+              <defs>
+                <radialGradient id="balBlue" cx="30%" cy="30%" r="70%">
+                  <stop offset="0%" stop-color="#bae6fd" />
+                  <stop offset="50%" stop-color="#60a5fa" />
+                  <stop offset="100%" stop-color="#2563eb" />
+                </radialGradient>
+              </defs>
+              <ellipse cx="50" cy="52" rx="42" ry="48" fill="url(#balBlue)" />
+              <ellipse cx="34" cy="30" rx="8" ry="14" fill="#ffffff" opacity="0.6" transform="rotate(-25 34 30)"/>
+              <polygon points="50,100 44,106 56,106" fill="#2563eb"/>
+              <path d="M 50,106 Q 45,115 52,122 Q 48,128 50,135" stroke="#93c5fd" stroke-width="2" fill="none"/>
+            </svg>
+          </div>
+          <!-- Revealed Word -->
+          <span class="revealed-word hidden text-2xl sm:text-3xl font-bold text-pink-700 script-font pop-anim">You</span>
+        </div>
+
+        <!-- Balloon 2: Pink -->
+        <div class="balloon-item relative flex flex-col items-center justify-center h-36 cursor-pointer" data-word="are">
+          <div class="balloon-visual balloon-float flex flex-col items-center transition-transform hover:scale-105 active:scale-90" style="animation-delay: 0.5s;">
+            <svg class="w-24 h-28 drop-shadow-md" viewBox="0 0 100 120">
+              <defs>
+                <radialGradient id="balPink" cx="30%" cy="30%" r="70%">
+                  <stop offset="0%" stop-color="#fce7f3" />
+                  <stop offset="50%" stop-color="#f472b6" />
+                  <stop offset="100%" stop-color="#db2777" />
+                </radialGradient>
+              </defs>
+              <ellipse cx="50" cy="52" rx="42" ry="48" fill="url(#balPink)" />
+              <ellipse cx="34" cy="30" rx="8" ry="14" fill="#ffffff" opacity="0.6" transform="rotate(-25 34 30)"/>
+              <polygon points="50,100 44,106 56,106" fill="#db2777"/>
+              <path d="M 50,106 Q 55,115 48,122 Q 52,128 50,135" stroke="#fbcfe8" stroke-width="2" fill="none"/>
+            </svg>
+          </div>
+          <span class="revealed-word hidden text-2xl sm:text-3xl font-bold text-pink-700 script-font pop-anim">are</span>
+        </div>
+
+        <!-- Balloon 3: Mint Green -->
+        <div class="balloon-item relative flex flex-col items-center justify-center h-36 cursor-pointer" data-word="so">
+          <div class="balloon-visual balloon-float flex flex-col items-center transition-transform hover:scale-105 active:scale-90" style="animation-delay: 1s;">
+            <svg class="w-24 h-28 drop-shadow-md" viewBox="0 0 100 120">
+              <defs>
+                <radialGradient id="balGreen" cx="30%" cy="30%" r="70%">
+                  <stop offset="0%" stop-color="#d1fae5" />
+                  <stop offset="50%" stop-color="#34d399" />
+                  <stop offset="100%" stop-color="#059669" />
+                </radialGradient>
+              </defs>
+              <ellipse cx="50" cy="52" rx="42" ry="48" fill="url(#balGreen)" />
+              <ellipse cx="34" cy="30" rx="8" ry="14" fill="#ffffff" opacity="0.6" transform="rotate(-25 34 30)"/>
+              <polygon points="50,100 44,106 56,106" fill="#059669"/>
+              <path d="M 50,106 Q 46,115 54,122 Q 47,128 50,135" stroke="#a7f3d0" stroke-width="2" fill="none"/>
+            </svg>
+          </div>
+          <span class="revealed-word hidden text-2xl sm:text-3xl font-bold text-pink-700 script-font pop-anim">so</span>
+        </div>
+
+        <!-- Balloon 4: Purple / Lavender -->
+        <div class="balloon-item relative flex flex-col items-center justify-center h-36 cursor-pointer" data-word="special">
+          <div class="balloon-visual balloon-float flex flex-col items-center transition-transform hover:scale-105 active:scale-90" style="animation-delay: 1.5s;">
+            <svg class="w-24 h-28 drop-shadow-md" viewBox="0 0 100 120">
+              <defs>
+                <radialGradient id="balPurple" cx="30%" cy="30%" r="70%">
+                  <stop offset="0%" stop-color="#ede9fe" />
+                  <stop offset="50%" stop-color="#a78bfa" />
+                  <stop offset="100%" stop-color="#7c3aed" />
+                </radialGradient>
+              </defs>
+              <ellipse cx="50" cy="52" rx="42" ry="48" fill="url(#balPurple)" />
+              <ellipse cx="34" cy="30" rx="8" ry="14" fill="#ffffff" opacity="0.6" transform="rotate(-25 34 30)"/>
+              <polygon points="50,100 44,106 56,106" fill="#7c3aed"/>
+              <path d="M 50,106 Q 54,115 47,122 Q 53,128 50,135" stroke="#ddd6fe" stroke-width="2" fill="none"/>
+            </svg>
+          </div>
+          <span class="revealed-word hidden text-2xl sm:text-3xl font-bold text-pink-700 script-font pop-anim">special 💖</span>
+        </div>
+      </div>
+
+      <!-- Secret Sentence display -->
+      <div id="sentenceDisplay" class="h-14 flex items-center justify-center font-bold text-xl sm:text-2xl text-pink-800 handwriting tracking-wider">
+        Tap the balloons to reveal!
+      </div>
+    </section>
+
+
+    <!-- Screen 4: Blow The Candle Screen -->
+    <section id="step4" class="step-screen hidden w-full h-full flex flex-col items-center justify-between p-6 text-center transition-all duration-1000">
+      <div class="pt-4">
+        <h2 id="candleHeading" class="serif-title text-2xl sm:text-3xl font-bold text-pink-800 transition-colors duration-700">Blow the candle 🕯️</h2>
+      </div>
+
+      <!-- Birthday Cake with interactive candle -->
+      <div id="cakeArea" class="my-auto cursor-pointer flex flex-col items-center active:scale-95 transition-transform" title="Tap candle to blow!">
+        <div class="relative w-64 h-56 flex items-center justify-center">
+          <svg viewBox="0 0 260 220" class="w-full h-full drop-shadow-xl">
+            <!-- Plate -->
+            <ellipse cx="130" cy="180" rx="100" ry="20" fill="#f1f5f9"/>
+            <ellipse cx="130" cy="177" rx="88" ry="15" fill="#ffffff"/>
+
+            <!-- Cake Sponge (Dark Chocolate) -->
+            <path d="M 45,130 C 45,155 85,172 130,172 C 175,172 215,155 215,130 L 215,115 C 215,140 175,157 130,157 C 85,157 45,140 45,115 Z" fill="#451a03"/>
+
+            <!-- Vanilla Frosting Top Layer -->
+            <path d="M 45,115 C 45,138 85,152 130,152 C 175,152 215,138 215,115 C 215,92 175,78 130,78 C 85,78 45,92 45,115 Z" fill="#fffbeb"/>
+            <!-- Frosting Drips -->
+            <path d="M 45,115 Q 60,135 75,118 Q 90,140 105,120 Q 120,142 135,122 Q 155,142 170,120 Q 190,138 205,118 Q 215,125 215,115" stroke="#fffbeb" stroke-width="12" fill="none" stroke-linecap="round"/>
+
+            <!-- Candle Stick -->
+            <rect x="124" y="38" width="12" height="48" rx="4" fill="#e11d48"/>
+            <line x1="126" y1="48" x2="134" y2="44" stroke="#ffffff" stroke-width="2"/>
+            <line x1="126" y1="62" x2="134" y2="58" stroke="#ffffff" stroke-width="2"/>
+            <line x1="126" y1="76" x2="134" y2="72" stroke="#ffffff" stroke-width="2"/>
+
+            <!-- Wick -->
+            <line x1="130" y1="38" x2="130" y2="28" stroke="#1f2937" stroke-width="2"/>
+
+            <!-- Candle Flame (Interactive) -->
+            <g id="candleFlame" class="flame-anim origin-bottom">
+              <!-- Glow -->
+              <circle cx="130" cy="18" r="18" fill="#fde68a" opacity="0.5" filter="blur(4px)"/>
+              <!-- Outer Flame -->
+              <path d="M 130,2 Q 142,16 130,28 Q 118,16 130,2 Z" fill="#f59e0b"/>
+              <!-- Inner Core -->
+              <path d="M 130,10 Q 137,18 130,26 Q 123,18 130,10 Z" fill="#ffffff"/>
+            </g>
+
+            <!-- Smoke puff when extinguished (hidden by default) -->
+            <g id="candleSmoke" class="hidden opacity-0 transition-opacity duration-500">
+              <path d="M 130,25 Q 122,12 135,5 Q 140,-5 130,-15" stroke="#9ca3af" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.6"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Instructions & Mic Blow Trigger -->
+      <div class="pb-6 w-full flex flex-col items-center gap-3">
+        <button id="micBlowBtn" class="bg-white/80 hover:bg-white text-pink-700 border border-pink-200 px-5 py-2.5 rounded-full text-sm font-semibold shadow-sm flex items-center gap-2 active:scale-95 transition">
+          <svg class="w-4 h-4 text-pink-600 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd"/></svg>
+          <span id="micBtnText">Blow into mic or Tap cake</span>
+        </button>
+        <p class="text-xs text-pink-600/80">Make a wish before blowing! ✨</p>
+      </div>
+
+      <!-- Wish overlay (Appears after blowing) -->
+      <div id="wishOverlay" class="absolute inset-0 bg-gray-950/85 backdrop-blur-sm hidden flex-col items-center justify-center p-6 text-white text-center z-30 transition-opacity">
+        <span class="text-4xl mb-3 animate-bounce">✨🌙</span>
+        <h3 class="serif-title text-2xl sm:text-3xl font-bold text-pink-200 mb-2">Close your eyes</h3>
+        <p class="handwriting text-2xl sm:text-3xl text-pink-300 font-semibold mb-6">& make a wish...</p>
+        <div class="w-16 h-1 bg-gradient-to-r from-transparent via-pink-400 to-transparent rounded-full animate-pulse"></div>
+      </div>
+    </section>
+
+
+    <!-- Screen 5: Rose Bouquet & Romantic Bubbles -->
+    <section id="step5" class="step-screen hidden w-full h-full flex flex-col items-center justify-between p-4 sm:p-6 text-center relative overflow-hidden">
+      <div class="pt-2 z-10">
+        <h2 class="serif-title text-2xl font-bold text-pink-800 flex items-center justify-center gap-2">
+          Your Rose Bouquet 🌹
+        </h2>
+        <p class="text-xs text-pink-600 mt-1">Tap the bouquet to reveal heartfelt notes</p>
+      </div>
+
+      <!-- Bouquet & Surrounding Floating Message Pills -->
+      <div class="relative w-full h-80 sm:h-96 flex items-center justify-center my-auto">
+        <!-- Floating Note Pill 1 (Top Left) -->
+        <div class="rose-note absolute top-2 left-2 bg-white/90 backdrop-blur-sm border border-pink-200 text-pink-800 text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-2xl shadow-md transition-all duration-500 scale-0 opacity-0">
+          Forever yours 💖
+        </div>
+
+        <!-- Floating Note Pill 2 (Top Right) -->
+        <div class="rose-note absolute top-4 right-1 bg-white/90 backdrop-blur-sm border border-pink-200 text-pink-800 text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-2xl shadow-md transition-all duration-500 scale-0 opacity-0">
+          You make my world beautiful ✨
+        </div>
+
+        <!-- Floating Note Pill 3 (Mid Left) -->
+        <div class="rose-note absolute top-28 left-0 bg-white/90 backdrop-blur-sm border border-pink-200 text-pink-800 text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-2xl shadow-md transition-all duration-500 scale-0 opacity-0">
+          You are my sunshine ☀️
+        </div>
+
+        <!-- Floating Note Pill 4 (Mid Right) -->
+        <div class="rose-note absolute top-28 right-0 bg-white/90 backdrop-blur-sm border border-pink-200 text-pink-800 text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-2xl shadow-md transition-all duration-500 scale-0 opacity-0">
+          Happy Birthday, <span class="recipient-name">Rajosri</span>! 💕
+        </div>
+
+        <!-- Floating Note Pill 5 (Bottom Left) -->
+        <div class="rose-note absolute bottom-6 left-3 bg-white/90 backdrop-blur-sm border border-pink-200 text-pink-800 text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-2xl shadow-md transition-all duration-500 scale-0 opacity-0">
+          I'm lucky to have you 🍀
+        </div>
+
+        <!-- Floating Note Pill 6 (Bottom Right) -->
+        <div class="rose-note absolute bottom-4 right-3 bg-white/90 backdrop-blur-sm border border-pink-200 text-pink-800 text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-2xl shadow-md transition-all duration-500 scale-0 opacity-0">
+          My favorite person 🌸
+        </div>
+
+        <!-- Center 3D-styled Bouquet Illustration -->
+        <div id="bouquetTrigger" class="cursor-pointer active:scale-95 transition-transform duration-300 z-10" title="Tap to bloom notes!">
+          <svg viewBox="0 0 220 260" class="w-48 h-56 sm:w-56 sm:h-64 drop-shadow-2xl">
+            <!-- Wrapper Kraft Paper -->
+            <polygon points="110,240 60,140 160,140" fill="#fbb6ce"/>
+            <polygon points="110,245 40,110 180,110" fill="#f472b6" opacity="0.8"/>
+            <polygon points="110,250 50,115 170,115" fill="#fbcfe8"/>
+
+            <!-- Ribbon Bow -->
+            <ellipse cx="95" cy="205" rx="15" ry="10" fill="#dc2626" transform="rotate(-20 95 205)"/>
+            <ellipse cx="125" cy="205" rx="15" ry="10" fill="#dc2626" transform="rotate(20 125 205)"/>
+            <circle cx="110" cy="205" r="7" fill="#b91c1c"/>
+            <path d="M 106,212 L 95,245" stroke="#b91c1c" stroke-width="4" stroke-linecap="round"/>
+            <path d="M 114,212 L 125,245" stroke="#b91c1c" stroke-width="4" stroke-linecap="round"/>
+
+            <!-- Leaves & Stems Background -->
+            <ellipse cx="80" cy="110" rx="16" ry="8" fill="#15803d" transform="rotate(-40 80 110)"/>
+            <ellipse cx="140" cy="110" rx="16" ry="8" fill="#16a34a" transform="rotate(40 140 110)"/>
+            <ellipse cx="110" cy="80" rx="18" ry="9" fill="#15803d"/>
+
+            <!-- Red Roses (Layered circles) -->
+            <!-- Rose 1 Left -->
+            <g transform="translate(65, 85)">
+              <circle cx="20" cy="20" r="18" fill="#e11d48"/>
+              <path d="M 12,18 C 12,10 28,10 28,18 C 28,26 12,26 12,18" stroke="#9f1239" stroke-width="2.5" fill="#f43f5e"/>
+              <circle cx="20" cy="19" r="6" fill="#be123c"/>
+            </g>
+            <!-- Rose 2 Right -->
+            <g transform="translate(115, 85)">
+              <circle cx="20" cy="20" r="18" fill="#e11d48"/>
+              <path d="M 12,18 C 12,10 28,10 28,18 C 28,26 12,26 12,18" stroke="#9f1239" stroke-width="2.5" fill="#f43f5e"/>
+              <circle cx="20" cy="19" r="6" fill="#be123c"/>
+            </g>
+            <!-- Rose 3 Center Top -->
+            <g transform="translate(90, 50)">
+              <circle cx="20" cy="20" r="22" fill="#be123c"/>
+              <path d="M 10,20 C 10,8 30,8 30,20 C 30,30 10,30 10,20" stroke="#881337" stroke-width="3" fill="#e11d48"/>
+              <circle cx="20" cy="19" r="8" fill="#9f1239"/>
+            </g>
+            <!-- Rose 4 Center Front -->
+            <g transform="translate(90, 95)">
+              <circle cx="20" cy="20" r="20" fill="#e11d48"/>
+              <path d="M 10,20 C 10,9 30,9 30,20 C 30,29 10,29 10,20" stroke="#9f1239" stroke-width="2.5" fill="#f43f5e"/>
+              <circle cx="20" cy="19" r="7" fill="#be123c"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Continue Button -->
+      <div class="pb-3 w-full">
+        <button id="toLetterBtn" class="w-full max-w-xs mx-auto bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold py-3 px-6 rounded-2xl shadow-lg shadow-pink-300 hover:scale-[1.02] active:scale-95 transition flex items-center justify-center gap-2 text-base">
+          <span>Read My Letter</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
+      </div>
+    </section>
+
+
+    <!-- Screen 6: Heart Envelope & Sweet Letter -->
+    <section id="step6" class="step-screen hidden w-full h-full flex flex-col items-center justify-between p-4 sm:p-6 text-center">
+      <div class="pt-1">
+        <h2 class="serif-title text-2xl font-bold text-pink-800">A Message From My Heart 💕</h2>
+      </div>
+
+      <!-- Envelope Container (Step A: Closed) -->
+      <div id="envelopeSection" class="my-auto w-full flex flex-col items-center cursor-pointer group">
+        <div class="relative w-64 h-44 bg-pink-100 rounded-2xl shadow-2xl border-2 border-pink-200 flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105 active:scale-95">
+          <!-- Envelope Flap -->
+          <div class="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-rose-200 to-pink-200 origin-top [clip-path:polygon(0_0,100%_0,50%_100%)] border-b border-pink-300"></div>
+          <!-- Envelope Body Trim -->
+          <div class="absolute bottom-0 left-0 right-0 h-28 bg-white/70 [clip-path:polygon(0_100%,50%_40%,100%_100%)]"></div>
+          
+          <!-- Golden/Pink Seal Stamp -->
+          <div class="relative z-10 w-12 h-12 bg-rose-500 rounded-full shadow-lg flex items-center justify-center text-white text-lg border-2 border-rose-200 animate-pulse">
+            💌
+          </div>
+        </div>
+        <p class="text-pink-600 font-semibold mt-4 text-sm animate-bounce">Tap to open</p>
+      </div>
+
+      <!-- Open Letter Card (Step B: Unfolded with smooth typing) -->
+      <div id="openedLetterModal" class="hidden w-full max-w-sm h-[74%] bg-amber-50/95 border border-pink-200 rounded-3xl p-5 shadow-2xl flex-col justify-between text-left relative overflow-hidden">
+        <!-- Cute Stamp in corner -->
+        <div class="absolute top-4 right-4 bg-pink-500/10 border border-pink-400/40 rounded-xl px-2 py-1 flex items-center gap-1 text-xs text-pink-600 font-bold">
+          <span>Rajosri's Day</span> 💖
+        </div>
+
+        <div class="overflow-y-auto pr-1 flex-1 text-gray-800 leading-relaxed text-sm sm:text-base">
+          <p class="font-bold text-pink-800 mb-2 handwriting text-xl sm:text-2xl">Dear <span class="recipient-name">Rajosri</span>,</p>
+          <div id="typedLetterBody" class="font-medium text-gray-700 whitespace-pre-line text-sm sm:text-base leading-relaxed"></div>
+        </div>
+
+        <div class="pt-3 border-t border-pink-200/60 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">🐰🌸</span>
+            <span class="text-xs text-pink-500 font-bold">Always with you</span>
+          </div>
+          <button id="toGiftBtn" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold py-2 px-5 rounded-full shadow-md text-xs sm:text-sm active:scale-95 transition">
+            One Last Thing... 🎁
+          </button>
+        </div>
+      </div>
+
+      <div class="h-2"></div>
+    </section>
+
+
+    <!-- Screen 7: One Last Thing Gift Box & Grand Finale -->
+    <section id="step7" class="step-screen hidden w-full h-full flex flex-col items-center justify-between p-6 text-center">
+      <div class="pt-2">
+        <h2 class="serif-title text-2xl sm:text-3xl font-bold text-pink-800" id="finalHeading">One Last Thing... 🎁</h2>
+        <p id="giftSubtitle" class="text-xs sm:text-sm text-pink-600 mt-1 font-medium">Tap the gift to unwrap</p>
+      </div>
+
+      <!-- Interactive Gift Box (Tap 3 times) -->
+      <div id="giftContainer" class="my-auto cursor-pointer relative flex flex-col items-center select-none active:scale-95 transition-transform">
+        <div id="giftTapsBadge" class="absolute -top-3 -right-3 bg-rose-500 text-white text-xs font-bold w-7 h-7 rounded-full flex items-center justify-center shadow-lg border-2 border-white animate-bounce">
+          3
+        </div>
+
+        <!-- Cute Gift SVG -->
+        <div id="giftSvgWrapper" class="shake-anim">
+          <svg viewBox="0 0 160 160" class="w-44 h-44 drop-shadow-2xl">
+            <!-- Gift Base -->
+            <rect x="25" y="60" width="110" height="85" rx="10" fill="#fce7f3" stroke="#f472b6" stroke-width="3"/>
+            <!-- Vertical Ribbon -->
+            <rect x="68" y="60" width="24" height="85" fill="#f43f5e"/>
+            <!-- Horizontal Ribbon -->
+            <rect x="25" y="94" width="110" height="20" fill="#f43f5e"/>
+
+            <!-- Gift Lid -->
+            <rect x="18" y="45" width="124" height="22" rx="6" fill="#fbcfe8" stroke="#f472b6" stroke-width="3"/>
+            <rect x="68" y="45" width="24" height="22" fill="#f43f5e"/>
+
+            <!-- Ribbon Bow Top -->
+            <path d="M 80,45 C 55,20 40,40 70,45 Z" fill="#e11d48"/>
+            <path d="M 80,45 C 105,20 120,40 90,45 Z" fill="#e11d48"/>
+            <circle cx="80" cy="45" r="7" fill="#be123c"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Finale Reveal Card (Reveals upon unpacking) -->
+      <div id="finaleCard" class="hidden my-auto w-full max-w-xs bg-white/90 backdrop-blur-md rounded-3xl p-5 shadow-2xl border-2 border-pink-200 flex-col items-center pop-anim">
+        <!-- Cute Couple Characters / Cake illustration -->
+        <div class="w-36 h-36 relative flex items-center justify-center mb-2">
+          <svg viewBox="0 0 160 160" class="w-full h-full">
+            <circle cx="80" cy="80" r="70" fill="#fff1f2"/>
+            <text x="80" y="45" font-family="'Caveat', cursive" font-size="28" font-weight="bold" fill="#ec4899" text-anchor="middle">HBD 💖</text>
+            <!-- Cute hugging bunnies / bears -->
+            <ellipse cx="60" cy="100" rx="22" ry="26" fill="#ffffff" stroke="#e5e7eb" stroke-width="2"/>
+            <circle cx="55" cy="88" r="3" fill="#1f2937"/>
+            <circle cx="68" cy="88" r="3" fill="#1f2937"/>
+            <ellipse cx="50" cy="98" rx="4" ry="2" fill="#f472b6"/>
+            <!-- Bear friend -->
+            <ellipse cx="98" cy="100" rx="24" ry="26" fill="#c49a82"/>
+            <circle cx="92" cy="88" r="3" fill="#3e2723"/>
+            <circle cx="106" cy="88" r="3" fill="#3e2723"/>
+            <ellipse cx="112" cy="98" rx="4" ry="2" fill="#f87171"/>
+            <circle cx="80" cy="85" r="12" fill="#ef4444" opacity="0.9"/>
+            <path d="M 80,80 L 80,90 M 75,85 L 85,85" stroke="#ffffff" stroke-width="2"/>
+          </svg>
+        </div>
+        <h3 class="serif-title text-xl font-bold text-pink-700">Lots of love for you 💕</h3>
+        <p class="text-xs sm:text-sm text-gray-600 font-semibold mt-1">Once again, Happy Birthday <span class="recipient-name">Rajosri</span>!</p>
+      </div>
+
+      <!-- Bottom controls & Replay -->
+      <div class="pb-2 w-full flex flex-col items-center gap-2">
+        <button id="replayBtn" class="hidden bg-white/90 border border-pink-300 text-pink-700 font-bold py-2.5 px-6 rounded-full shadow hover:bg-white active:scale-95 transition text-sm">
+          Celebrate Again 🔄
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    /* =====================================================================
+       1. GLOBAL STATE & CONFIGURATION
+       ===================================================================== */
+    const CONFIG = {
+      recipientName: "Rajosri",
+      letterMessage: `Happy Birthday to someone truly special! 🎂✨
+
+You are a sweet soul, true bestie, super loyal, and I am endlessly grateful to have you in my life.
+
+You bring so much warmth, kindness, and sweetness everywhere you go. Every shared laughter and moment with you is precious.
+
+On your special day, I wish you all the genuine happiness, peace, love, and sweet dreams you deserve. May this year bring you boundless blessings and wonderful memories.
+
+Here's to celebrating you today and always! 🥂🌸
+
+With love and warmest wishes,
+Your Special Someone 💕`
+    };
+
+    let currentStep = 1;
+    let balloonsPopped = 0;
+    let giftTapsLeft = 3;
+    let audioContext = null;
+    let isMusicPlaying = false;
+    let melodyInterval = null;
+
+    /* =====================================================================
+       2. WEB AUDIO API - SWEET ROMANTIC CHIME / LULLABY SYNTHESIZER
+       ===================================================================== */
+    function initAudio() {
+      if (!audioContext) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        audioContext = new AudioCtx();
+      }
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+    }
+
+    function playNote(freq, type = 'sine', duration = 0.5, gainVal = 0.08) {
+      if (!audioContext || !isMusicPlaying) return;
+      try {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+
+        gain.gain.setValueAtTime(0.001, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(gainVal, audioContext.currentTime + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+
+        osc.start();
+        osc.stop(audioContext.currentTime + duration);
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+
+    // Gentle romantic pentatonic tune loop
+    const melody = [
+      { f: 523.25, d: 0.6 }, // C5
+      { f: 587.33, d: 0.6 }, // D5
+      { f: 659.25, d: 0.8 }, // E5
+      { f: 783.99, d: 0.8 }, // G5
+      { f: 880.00, d: 0.9 }, // A5
+      { f: 783.99, d: 0.6 }, // G5
+      { f: 659.25, d: 0.9 }, // E5
+      { f: 523.25, d: 1.1 }  // C5
+    ];
+    let noteIdx = 0;
+
+    function startBackgroundMusic() {
+      initAudio();
+      isMusicPlaying = true;
+      document.getElementById('soundOffIcon').classList.add('hidden');
+      document.getElementById('soundOnIcon').classList.remove('hidden');
+
+      if (!melodyInterval) {
+        melodyInterval = setInterval(() => {
+          if (!isMusicPlaying) return;
+          const current = melody[noteIdx];
+          playNote(current.f, 'triangle', current.d, 0.07);
+          noteIdx = (noteIdx + 1) % melody.length;
+        }, 700);
+      }
+    }
+
+    function stopBackgroundMusic() {
+      isMusicPlaying = false;
+      document.getElementById('soundOffIcon').classList.remove('hidden');
+      document.getElementById('soundOnIcon').classList.add('hidden');
+      if (melodyInterval) {
+        clearInterval(melodyInterval);
+        melodyInterval = null;
+      }
+    }
+
+    document.getElementById('soundToggleBtn').addEventListener('click', () => {
+      initAudio();
+      if (isMusicPlaying) {
+        stopBackgroundMusic();
+      } else {
+        startBackgroundMusic();
+      }
+    });
+
+    // Sound effects: Pop sound
+    function playPopSound() {
+      if (!audioContext) return;
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.frequency.setValueAtTime(450, audioContext.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(80, audioContext.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+      gain.gain.linearRampToValueAtTime(0.001, audioContext.currentTime + 0.08);
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      osc.start();
+      osc.stop(audioContext.currentTime + 0.09);
+    }
+
+    /* =====================================================================
+       3. AMBIENT FLOATING HEARTS GENERATOR
+       ===================================================================== */
+    function createAmbientHearts() {
+      const container = document.getElementById('heartsContainer');
+      const symbols = ['💖', '💕', '🌸', '✨', '🤍'];
+      for (let i = 0; i < 18; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'floating-heart';
+        heart.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        heart.style.left = `${Math.random() * 95}vw`;
+        heart.style.fontSize = `${Math.random() * 18 + 14}px`;
+        heart.style.animationDuration = `${Math.random() * 8 + 8}s`;
+        heart.style.animationDelay = `${Math.random() * 6}s`;
+        container.appendChild(heart);
+      }
+    }
+
+    /* =====================================================================
+       4. NAVIGATION / STEP CONTROLLER
+       ===================================================================== */
+    function goToStep(stepNum) {
+      document.querySelectorAll('.step-screen').forEach(el => {
+        el.classList.add('hidden');
+        el.classList.remove('flex');
+      });
+      const target = document.getElementById(`step${stepNum}`);
+      if (target) {
+        target.classList.remove('hidden');
+        target.classList.add('flex');
+      }
+      currentStep = stepNum;
+
+      // Step-specific activations
+      if (stepNum === 2) {
+        triggerConfetti(0.4);
+      }
+    }
+
+    function triggerConfetti(intensity = 0.5) {
+      try {
+        if (typeof confetti === 'function') {
+          confetti({
+            particleCount: Math.floor(70 * intensity),
+            spread: 60,
+            origin: { y: 0.6 },
+            colors: ['#f472b6', '#fb7185', '#fda4af', '#fcd34d', '#38bdf8']
+          });
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
+    /* =====================================================================
+       5. STEP 1: COVER SCREEN & SCAN
+       ===================================================================== */
+    const qrCard = document.getElementById('qrCard');
+    const scanLabel = document.getElementById('scanLabel');
+    const openingSpinner = document.getElementById('openingSpinner');
+
+    qrCard.addEventListener('click', () => {
+      initAudio();
+      if (!isMusicPlaying) startBackgroundMusic();
+
+      scanLabel.classList.add('hidden');
+      openingSpinner.classList.remove('hidden');
+
+      setTimeout(() => {
+        goToStep(2);
+      }, 1200);
+    });
+
+    /* =====================================================================
+       6. STEP 2: BEAR & PANDA + RUNAWAY "NO" BUTTON
+       ===================================================================== */
+    const yesBtn = document.getElementById('yesExcitedBtn');
+    const noBtn = document.getElementById('noExcitedBtn');
+    const excitementContainer = document.getElementById('excitementBtnContainer');
+
+    yesBtn.addEventListener('click', () => {
+      triggerConfetti(0.8);
+      goToStep(3);
+    });
+
+    // Playful runaway logic for "No" button
+    function dodgeNoButton() {
+      const containerRect = excitementContainer.getBoundingClientRect();
+      const maxX = containerRect.width / 2 - 40;
+      const randomX = (Math.random() - 0.5) * (maxX * 1.6);
+      const randomY = (Math.random() - 0.5) * 60;
+      noBtn.style.transform = `translate(${randomX}px, ${randomY}px)`;
+    }
+
+    noBtn.addEventListener('mouseover', dodgeNoButton);
+    noBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      dodgeNoButton();
+    });
+    noBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      dodgeNoButton();
+    });
+
+    /* =====================================================================
+       7. STEP 3: BALLOON POPPING GAME
+       ===================================================================== */
+    const balloonItems = document.querySelectorAll('.balloon-item');
+    const balloonCounter = document.getElementById('balloonCounter');
+    const sentenceDisplay = document.getElementById('sentenceDisplay');
+
+    balloonItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const visual = item.querySelector('.balloon-visual');
+        const wordEl = item.querySelector('.revealed-word');
+
+        if (!visual.classList.contains('hidden')) {
+          initAudio();
+          playPopSound();
+          triggerConfetti(0.2);
+
+          visual.classList.add('hidden');
+          wordEl.classList.remove('hidden');
+          balloonsPopped++;
+
+          balloonCounter.textContent = `${balloonsPopped}/4 POPPED`;
+
+          if (balloonsPopped === 4) {
+            sentenceDisplay.innerHTML = `<span class="text-pink-600 scale-105 transition-transform inline-block">"You are so special 💖"</span>`;
+            triggerConfetti(0.9);
+            setTimeout(() => {
+              goToStep(4);
+            }, 1800);
+          }
+        }
+      });
+    });
+
+    /* =====================================================================
+       8. STEP 4: BLOW CANDLE SCREEN
+       ===================================================================== */
+    const cakeArea = document.getElementById('cakeArea');
+    const candleFlame = document.getElementById('candleFlame');
+    const candleSmoke = document.getElementById('candleSmoke');
+    const micBlowBtn = document.getElementById('micBlowBtn');
+    const micBtnText = document.getElementById('micBtnText');
+    const wishOverlay = document.getElementById('wishOverlay');
+    let candleBlown = false;
+
+    function extinguishCandle() {
+      if (candleBlown) return;
+      candleBlown = true;
+
+      // Flame disappears, smoke appears
+      candleFlame.classList.add('hidden');
+      candleSmoke.classList.remove('hidden');
+      candleSmoke.style.opacity = '1';
+
+      initAudio();
+      playPopSound();
+
+      // Show wish screen overlay with dimmed room feel
+      setTimeout(() => {
+        wishOverlay.classList.remove('hidden');
+        wishOverlay.classList.add('flex');
+        triggerConfetti(0.8);
+      }, 700);
+
+      // Auto transition to Rose bouquet after 3 seconds
+      setTimeout(() => {
+        goToStep(5);
+      }, 3600);
+    }
+
+    cakeArea.addEventListener('click', extinguishCandle);
+
+    // Microphone blow detector
+    let micStream = null;
+    micBlowBtn.addEventListener('click', async () => {
+      initAudio();
+      if (candleBlown) return;
+
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          micBtnText.textContent = "Tap cake to blow!";
+          return;
+        }
+
+        micBtnText.textContent = "Listening... Blow now! 💨";
+        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const micSource = audioContext.createMediaStreamSource(micStream);
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        micSource.connect(analyser);
+
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        const checkBlow = () => {
+          if (candleBlown) {
+            if (micStream) micStream.getTracks().forEach(t => t.stop());
+            return;
+          }
+          analyser.getByteFrequencyData(dataArray);
+          let sum = 0;
+          for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+          let average = sum / dataArray.length;
+
+          // Sound threshold for blow
+          if (average > 55) {
+            extinguishCandle();
+            if (micStream) micStream.getTracks().forEach(t => t.stop());
+            return;
+          }
+          requestAnimationFrame(checkBlow);
+        };
+        checkBlow();
+      } catch (err) {
+        console.warn('Microphone permission not granted or unsupported:', err);
+        micBtnText.textContent = "Tap cake directly! 🎂";
+      }
+    });
+
+    /* =====================================================================
+       9. STEP 5: ROSE BOUQUET & NOTE BUBBLES
+       ===================================================================== */
+    const bouquetTrigger = document.getElementById('bouquetTrigger');
+    const roseNotes = document.querySelectorAll('.rose-note');
+    let notesRevealed = 0;
+
+    function revealNextRoseNote() {
+      if (notesRevealed < roseNotes.length) {
+        const note = roseNotes[notesRevealed];
+        note.classList.remove('scale-0', 'opacity-0');
+        note.classList.add('scale-100', 'opacity-100');
+        initAudio();
+        playNote(587.33 + notesRevealed * 40, 'sine', 0.3, 0.05);
+        notesRevealed++;
+      } else {
+        triggerConfetti(0.5);
+      }
+    }
+
+    bouquetTrigger.addEventListener('click', revealNextRoseNote);
+
+    // Auto bloom notes progressively on arriving at step 5
+    const observer = new MutationObserver(() => {
+      const step5 = document.getElementById('step5');
+      if (!step5.classList.contains('hidden') && notesRevealed === 0) {
+        roseNotes.forEach((note, index) => {
+          setTimeout(() => {
+            note.classList.remove('scale-0', 'opacity-0');
+            note.classList.add('scale-100', 'opacity-100');
+            notesRevealed++;
+          }, (index + 1) * 350);
+        });
+      }
+    });
+    observer.observe(document.getElementById('step5'), { attributes: true, attributeFilter: ['class'] });
+
+    document.getElementById('toLetterBtn').addEventListener('click', () => {
+      goToStep(6);
+    });
+
+    /* =====================================================================
+       10. STEP 6: HEART ENVELOPE & LETTER TYPING
+       ===================================================================== */
+    const envelopeSection = document.getElementById('envelopeSection');
+    const openedLetterModal = document.getElementById('openedLetterModal');
+    const typedLetterBody = document.getElementById('typedLetterBody');
+    let letterTyped = false;
+
+    envelopeSection.addEventListener('click', () => {
+      initAudio();
+      envelopeSection.classList.add('hidden');
+      openedLetterModal.classList.remove('hidden');
+      openedLetterModal.classList.add('flex');
+
+      if (!letterTyped) {
+        letterTyped = true;
+        let charIndex = 0;
+        const speed = 25; // ms per char
+        const textToType = CONFIG.letterMessage;
+
+        function typeLetter() {
+          if (charIndex < textToType.length) {
+            typedLetterBody.textContent += textToType.charAt(charIndex);
+            charIndex++;
+            setTimeout(typeLetter, speed);
+          }
+        }
+        typeLetter();
+      }
+    });
+
+    document.getElementById('toGiftBtn').addEventListener('click', () => {
+      goToStep(7);
+    });
+
+    /* =====================================================================
+       11. STEP 7: GIFT BOX UNWRAPPING & CELEBRATION
+       ===================================================================== */
+    const giftContainer = document.getElementById('giftContainer');
+    const giftTapsBadge = document.getElementById('giftTapsBadge');
+    const giftSvgWrapper = document.getElementById('giftSvgWrapper');
+    const finaleCard = document.getElementById('finaleCard');
+    const replayBtn = document.getElementById('replayBtn');
+    const giftSubtitle = document.getElementById('giftSubtitle');
+
+    giftContainer.addEventListener('click', () => {
+      initAudio();
+      if (giftTapsLeft > 1) {
+        giftTapsLeft--;
+        giftTapsBadge.textContent = giftTapsLeft;
+        playPopSound();
+        // Trigger bounce
+        giftSvgWrapper.classList.remove('shake-anim');
+        void giftSvgWrapper.offsetWidth; // reflow
+        giftSvgWrapper.classList.add('shake-anim');
+      } else {
+        // Unwrapped completely!
+        giftTapsBadge.classList.add('hidden');
+        giftContainer.classList.add('hidden');
+        giftSubtitle.textContent = "A wish come true! 💖";
+        finaleCard.classList.remove('hidden');
+        finaleCard.classList.add('flex');
+        replayBtn.classList.remove('hidden');
+
+        // Big celebration confetti burst
+        triggerConfetti(1.2);
+        setTimeout(() => triggerConfetti(0.8), 500);
+        setTimeout(() => triggerConfetti(0.9), 1100);
+      }
+    });
+
+    replayBtn.addEventListener('click', () => {
+      // Reset all interactive states
+      balloonsPopped = 0;
+      giftTapsLeft = 3;
+      candleBlown = false;
+      notesRevealed = 0;
+      letterTyped = false;
+
+      balloonCounter.textContent = '0/4 POPPED';
+      sentenceDisplay.textContent = 'Tap the balloons to reveal!';
+      balloonItems.forEach(item => {
+        item.querySelector('.balloon-visual').classList.remove('hidden');
+        item.querySelector('.revealed-word').classList.add('hidden');
+      });
+
+      candleFlame.classList.remove('hidden');
+      candleSmoke.classList.add('hidden');
+      wishOverlay.classList.add('hidden');
+      wishOverlay.classList.remove('flex');
+
+      roseNotes.forEach(note => {
+        note.classList.add('scale-0', 'opacity-0');
+        note.classList.remove('scale-100', 'opacity-100');
+      });
+
+      envelopeSection.classList.remove('hidden');
+      openedLetterModal.classList.add('hidden');
+      openedLetterModal.classList.remove('flex');
+      typedLetterBody.textContent = '';
+
+      giftContainer.classList.remove('hidden');
+      giftTapsBadge.classList.remove('hidden');
+      giftTapsBadge.textContent = '3';
+      finaleCard.classList.add('hidden');
+      finaleCard.classList.remove('flex');
+      replayBtn.classList.add('hidden');
+      giftSubtitle.textContent = 'Tap the gift to unwrap';
+
+      scanLabel.classList.remove('hidden');
+      openingSpinner.classList.add('hidden');
+
+      goToStep(1);
+    });
+
+    // Initialize decorative ambient elements on load
+    window.addEventListener('DOMContentLoaded', () => {
+      createAmbientHearts();
+    });
+  </script>
+</body>
+</html>
